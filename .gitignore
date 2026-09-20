@@ -1,0 +1,22 @@
+# 上游代码副本与归档原文：不入公开库
+repos/
+sources/
+
+# 实验中间产物
+experiments/**/data/
+experiments/**/output/
+*.log
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.ckpt
+
+# 状态文件已迁往 Notion，不再入库
+STATUS.md
+
+# 环境与系统
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store

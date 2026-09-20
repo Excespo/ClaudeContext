@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+<title>ClaudeContext 操作手册</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --bg:#EEF2F6; --surface:#FFFFFF; --surface-2:#E4EAF1;
+    --ink:#0F1720; --ink-2:#38424F; --muted:#64707F;
+    --line:#C9D4E0; --line-soft:#DCE4ED;
+    --accent:#1B5A9E; --accent-soft:#D9E6F5;
+    --warn:#9A6316; --warn-soft:#F4E7D2;
+    --ok:#256B4E; --ok-soft:#D7EBE0;
+    --stop:#96342F; --stop-soft:#F6DEDB;
+    --shadow:0 1px 2px rgba(15,23,32,.06), 0 8px 24px -16px rgba(15,23,32,.28);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D1219; --surface:#141C25; --surface-2:#1B2530;
+      --ink:#E6ECF3; --ink-2:#C2CDD9; --muted:#8D9BAB;
+      --line:#2A3642; --line-soft:#212C37;
+      --accent:#74AEEA; --accent-soft:#16293E;
+      --warn:#D9A85C; --warn-soft:#2E2415;
+      --ok:#7CC6A2; --ok-soft:#15281F;
+      --stop:#E09089; --stop-soft:#2E1A18;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -18px rgba(0,0,0,.8);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D1219; --surface:#141C25; --surface-2:#1B2530;
+    --ink:#E6ECF3; --ink-2:#C2CDD9; --muted:#8D9BAB;
+    --line:#2A3642; --line-soft:#212C37;
+    --accent:#74AEEA; --accent-soft:#16293E;
+    --warn:#D9A85C; --warn-soft:#2E2415;
+    --ok:#7CC6A2; --ok-soft:#15281F;
+    --stop:#E09089; --stop-soft:#2E1A18;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -18px rgba(0,0,0,.8);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans","Helvetica Neue","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.65; margin:0; padding-block:0 72px; padding-left:20px; padding-right:20px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1020px; margin:0 auto; display:flex; flex-direction:column; gap:44px}
+  code,kbd,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+  code{font-size:.88em; background:var(--surface-2); padding:.12em .38em; border-radius:3px; color:var(--ink-2)}
+  a{color:var(--accent)}
+  h1,h2,h3{font-family:Spectral,Georgia,"Songti SC",serif; font-weight:600; text-wrap:balance; margin:0}
+  h2{font-size:1.5rem; letter-spacing:.01em}
+  h3{font-size:1.06rem; font-family:"IBM Plex Sans",sans-serif; font-weight:600}
+  p{margin:0}
+
+  /* header */
+  header{padding-top:56px; display:flex; flex-direction:column; gap:18px}
+  .eyebrow{font-family:"IBM Plex Mono",monospace; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted)}
+  h1{font-size:clamp(2rem,5.4vw,2.9rem); line-height:1.15}
+  .lede{color:var(--ink-2); max-width:62ch; font-size:1.05rem}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{font-family:"IBM Plex Mono",monospace; font-size:.78rem; border:1px solid var(--line);
+        background:var(--surface); color:var(--ink-2); padding:4px 10px; border-radius:2px}
+  .chip b{color:var(--accent); font-weight:500}
+
+  section{display:flex; flex-direction:column; gap:16px}
+  .sec-head{display:flex; align-items:baseline; gap:12px; border-bottom:1px solid var(--line); padding-bottom:10px}
+  .sec-head .n{font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--muted)}
+  .note{color:var(--muted); font-size:.92rem; max-width:70ch}
+
+  /* tables */
+  .tw{overflow-x:auto; border:1px solid var(--line); border-radius:4px; background:var(--surface)}
+  table{border-collapse:collapse; width:100%; font-size:.92rem; min-width:560px}
+  th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line-soft); vertical-align:top}
+  thead th{background:var(--surface-2); font-weight:600; font-size:.82rem; letter-spacing:.04em; color:var(--ink-2); white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  td.mono{font-size:.84rem; color:var(--ink-2); white-space:nowrap}
+
+  /* cards */
+  .grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:18px; display:flex; flex-direction:column; gap:10px; box-shadow:var(--shadow)}
+  .card h3{display:flex; align-items:center; gap:8px}
+  .tag{font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+       padding:2px 7px; border-radius:2px; background:var(--accent-soft); color:var(--accent); white-space:nowrap}
+  .card p{font-size:.92rem; color:var(--ink-2)}
+  .say{font-family:"IBM Plex Mono",monospace; font-size:.82rem; background:var(--surface-2); border-left:2px solid var(--accent);
+       padding:10px 12px; color:var(--ink-2); border-radius:0 3px 3px 0; line-height:1.55}
+  .say b{color:var(--ink); font-weight:500}
+
+  /* flow diagram */
+  figure{margin:0; background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:18px; overflow-x:auto}
+  figcaption{font-size:.85rem; color:var(--muted); margin-top:10px}
+  svg{display:block; max-width:100%; height:auto}
+
+  /* callouts */
+  .call{border-left:3px solid var(--warn); background:var(--warn-soft); padding:14px 16px; border-radius:0 4px 4px 0; font-size:.94rem; color:var(--ink-2)}
+  .call.stop{border-color:var(--stop); background:var(--stop-soft)}
+  .call.ok{border-color:var(--ok); background:var(--ok-soft)}
+  .call b{color:var(--ink)}
+
+  /* checklist / steps */
+  ol.steps{list-style:none; counter-reset:s; padding:0; margin:0; display:flex; flex-direction:column; gap:12px}
+  ol.steps li{counter-increment:s; display:grid; grid-template-columns:30px 1fr; gap:12px; align-items:start}
+  ol.steps li::before{content:counter(s,decimal-leading-zero); font-family:"IBM Plex Mono",monospace; font-size:.78rem;
+    color:var(--accent); border:1px solid var(--line); border-radius:2px; padding:3px 0; text-align:center; background:var(--surface)}
+  ol.steps .body{display:flex; flex-direction:column; gap:6px}
+  ol.steps .body b{font-weight:600}
+  ol.steps .body span{color:var(--ink-2); font-size:.94rem}
+
+  ul.flat{margin:0; padding-left:1.1em; color:var(--ink-2); font-size:.94rem; display:flex; flex-direction:column; gap:7px}
+  ul.flat b{color:var(--ink)}
+
+  footer{border-top:1px solid var(--line); padding-top:18px; color:var(--muted); font-size:.85rem; display:flex; flex-wrap:wrap; gap:8px 20px}
+  @media (max-width:560px){
+    header{padding-top:36px}
+    .wrap{gap:36px}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .card{transition:border-color .18s ease}
+  }
+  .card:hover{border-color:var(--accent)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">~/codes/ClaudeContext · 2026-09-13</div>
+  <h1>ClaudeContext 操作手册</h1>
+  <p class="lede">四个方向的本地知识库怎么用：新信息从哪进来、什么写在 Instructions 里、哪些东西该上传、定期任务在什么时候敲门。本地目录是真相源，claude.ai 上的 Project 只是它的消费端。</p>
+  <div class="chips">
+    <span class="chip"><b>ai-infra</b> · 40 条种子</span>
+    <span class="chip"><b>mac-ops</b> · 6 条种子</span>
+    <span class="chip"><b>strength-training</b> · 8 条种子</span>
+    <span class="chip"><b>humanities</b> · 16 条种子</span>
+  </div>
+</header>
+
+<section>
+  <div class="sec-head"><h2>五个位置，各写什么</h2></div>
+  <p class="note">Project 页面上有四个面板加一份云端记忆，职责完全不同。写错位置的后果不是报错，是「看起来配好了但没生效」。</p>
+  <div class="tw">
+  <table>
+    <thead><tr><th>位置</th><th>该放什么</th><th>本地对应文件</th><th>更新方式</th></tr></thead>
+    <tbody>
+      <tr><td><b>Instructions</b></td><td>角色、回答协议、禁止项、ladder。每轮对话都会生效，是真正的行为契约。</td><td class="mono">&lt;方向&gt;/project-instructions.md</td><td>改本地 → 粘贴覆盖</td></tr>
+      <tr><td><b>Description</b></td><td>一句话说明这个 project 是什么。给人看的，不承担协议。</td><td class="mono">README.md 表格</td><td>很少改</td></tr>
+      <tr><td><b>Context（知识库）</b></td><td>蒸馏后的 notes 与 00-index.md。<b>不放原始代码和长文档。</b></td><td class="mono">&lt;方向&gt;/notes/**</td><td>快照上传，不会自动同步</td></tr>
+      <tr><td><b>Memory</b></td><td>Claude 自己在这个 project 里攒的上下文。几次对话后才出现，不用手动填。</td><td>—</td><td>自动</td></tr>
+      <tr><td><b>Scheduled</b></td><td>project 内的定期任务。与下面三个跑在 Cowork 的任务是两套东西。</td><td>—</td><td>按需</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="call"><b>已经修过的一个错：</b>四个 project 的协议最初写进了 Description，现在已迁到 Instructions，Description 只留一句话。以后改协议只动 Instructions。</div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>信息的流向</h2></div>
+  <figure>
+    <svg viewBox="0 0 880 220" role="img" aria-label="从原始材料到笔记、到 Project 知识库、再回流到 inbox 的循环">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"></path>
+        </marker>
+      </defs>
+      <g font-family="IBM Plex Mono, monospace" font-size="12">
+        <rect x="8" y="52" width="176" height="76" rx="3" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="24" y="78" fill="var(--ink)" font-size="13">repos/ · sources/</text>
+        <text x="24" y="98" fill="var(--muted)">上游代码与原文</text>
+        <text x="24" y="115" fill="var(--muted)">只读</text>
+
+        <rect x="240" y="52" width="176" height="76" rx="3" fill="var(--surface)" stroke="var(--accent)"></rect>
+        <text x="256" y="78" fill="var(--ink)" font-size="13">notes/ + 00-index</text>
+        <text x="256" y="98" fill="var(--muted)">蒸馏产物</text>
+        <text x="256" y="115" fill="var(--muted)">唯一上传物</text>
+
+        <rect x="472" y="52" width="176" height="76" rx="3" fill="var(--surface-2)" stroke="var(--line)"></rect>
+        <text x="488" y="78" fill="var(--ink)" font-size="13">Project Context</text>
+        <text x="488" y="98" fill="var(--muted)">云端快照</text>
+        <text x="488" y="115" fill="var(--muted)">提问 / 被出题</text>
+
+        <rect x="704" y="52" width="168" height="76" rx="3" fill="var(--surface)" stroke="var(--line)"></rect>
+        <text x="720" y="78" fill="var(--ink)" font-size="13">inbox.md</text>
+        <text x="720" y="98" fill="var(--muted)">新结论排队</text>
+        <text x="720" y="115" fill="var(--muted)">划掉即闭环</text>
+
+        <path d="M184,90 L236,90" stroke="var(--accent)" stroke-width="1.5" fill="none" marker-end="url(#ah)"></path>
+        <path d="M416,90 L468,90" stroke="var(--accent)" stroke-width="1.5" fill="none" marker-end="url(#ah)"></path>
+        <path d="M648,90 L700,90" stroke="var(--accent)" stroke-width="1.5" fill="none" marker-end="url(#ah)"></path>
+        <path d="M788,128 L788,176 L328,176 L328,132" stroke="var(--accent)" stroke-width="1.5" fill="none" stroke-dasharray="4 4" marker-end="url(#ah)"></path>
+        <text x="470" y="170" fill="var(--muted)">蒸馏成新 note，回到索引</text>
+
+        <text x="206" y="46" fill="var(--muted)" font-size="11">带问题读</text>
+        <text x="430" y="46" fill="var(--muted)" font-size="11">上传</text>
+        <text x="662" y="46" fill="var(--muted)" font-size="11">对话产出</text>
+      </g>
+    </svg>
+    <figcaption>闭环的关键在虚线那一段：对话里聊出来的东西如果没有回到 notes/，这个 project 三个月后就只剩一堆聊天记录。</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="sec-head"><h2>新信息怎么进来</h2></div>
+  <p class="note">三条路径，按「材料在哪」选，不是按心情选。</p>
+  <div class="grid">
+    <div class="card">
+      <h3>在 chat 里聊出了结论 <span class="tag">最常见</span></h3>
+      <p>对话结束前让 Claude 把结论压成一篇 note，你存盘，而不是让它躺在聊天记录里。</p>
+      <div class="say">把刚才这段压成一篇 note：<b>机制 / 代码定位（file:line + commit）/ 数字 / 未解决问题</b>，四段，不要复述文档，只写读了源码才知道的部分。再给我该加进 00-index.md 的那一行。</div>
+      <p>存到 <code>notes/&lt;domain&gt;/&lt;topic&gt;.md</code>，在 <code>00-index.md</code> 补一行，去 inbox 划掉对应条目。</p>
+    </div>
+    <div class="card">
+      <h3>材料在本机 <span class="tag">Cowork</span></h3>
+      <p>像现在这样挂着 ClaudeContext 文件夹的会话，可以直接让我读写文件，不用你来回复制粘贴。</p>
+      <div class="say">读 ai-infra/inbox.md 里 serving 组的两条，对着 <b>repos/vllm</b> 把结论写成 notes/serving/paged-attention.md，然后更新 00-index.md 并把 inbox 那两行划掉。</div>
+      <p>适合批量整理、跨文件改动、要跑脚本验证数字的场合。</p>
+    </div>
+    <div class="card">
+      <h3>要读大型源码 <span class="tag">Claude Code</span></h3>
+      <p>repos/ 下的上游仓库不进任何知识库，留在本地按需 grep。蒸馏这一步才是真正产生理解的地方。</p>
+      <div class="say">在 repos/Megatron-LM 里找到 TP 的 all-reduce 调用点，给我调用链和每步的通信量，标上 commit；结论按 note 四段式写到 notes/comm/ 下。</div>
+      <p>写完回到 chat Project 提问、被出题、被反驳。</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>上传知识库的几条机械规则</h2></div>
+  <ul class="flat">
+    <li><b>Context 是快照，不是同步。</b>本地改了 notes，云端那份还是旧的——重新上传，并把旧文件删掉，否则同一篇笔记两个版本同时被检索到，回答会自相矛盾。</li>
+    <li><b>只传 <code>notes/**</code> 与 <code>ROADMAP.md</code>。</b>Instructions 里写了「先查 00-index.md」，所以 00-index 必须在；inbox.md 是你的待办，不必上传；repos/、sources/、experiments/ 一律不传。</li>
+    <li><b>一个方向控制在几十篇以内。</b>知识库接近上限会切到 RAG 检索模式，召回变模糊。宁可把三篇零散笔记合成一篇，也不要堆数量。</li>
+    <li><b>命名即检索。</b>文件名用 <code>&lt;domain&gt;/&lt;机制名&gt;.md</code>（如 <code>comm/nccl-ring-allreduce.md</code>），不要用日期或「笔记1」。</li>
+    <li><b>Instructions 里写的路径要和现实一致。</b>如果以后把目录搬走或改名，四份 Instructions 都要跟着改，否则 Claude 会引用一个不存在的索引。</li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><h2>已经替你上好的三个闹钟</h2></div>
+  <div class="tw">
+  <table>
+    <thead><tr><th>任务</th><th>时间（北京）</th><th>它会做什么</th><th>产物</th></tr></thead>
+    <tbody>
+      <tr><td><b>知识库体检</b></td><td class="mono">周一 09:00</td><td>统计各方向 notes 数量、最近改动天数、inbox 剩余、ROADMAP 进度；超过 21 天没动就点名。连续 3 次疏远会直接建议降级或合并该方向。</td><td class="mono">STATUS.md + 推送</td></tr>
+      <tr><td><b>自测出题</b></td><td class="mono">周五 20:00</td><td>按 ROADMAP 当前阶段出 3 道题：推导、数字估算、源码定位。答案和判分标准折叠在题下。notes 还空的时候，改问 inbox 里那些「你以为懂了」的条目。</td><td class="mono">对话 + 推送</td></tr>
+      <tr><td><b>归档巡检</b></td><td class="mono">每月 1 日 10:00</td><td>扫最近 35 天的新 chat，分流进各方向 inbox 的「待确认」小节，并报告是否出现了值得单开方向的新主题簇（同类 ≥5 条）。</td><td class="mono">inbox 追加 + 推送</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="call ok"><b>调整方式：</b>直接在对话里说「把自测改成两周一次」或「停掉归档巡检」即可，不用自己去找设置。巡检只往 inbox 末尾追加「待确认」小节，不会动你手写的表格行。</div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>交接清单：每个文件负责什么</h2></div>
+  <p class="note">这一节是写给以后的：无论是几个月后的你，还是一个没有本次上下文的 Claude 会话，读完这张表就能接手。</p>
+  <div class="tw">
+  <table>
+    <thead><tr><th>文件</th><th>职责</th><th>不变量</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">README.md</td><td>方向清单与共同约定</td><td>增删方向必须先改这里，定期任务以它为准</td></tr>
+      <tr><td class="mono">&lt;方向&gt;/CLAUDE.md</td><td>给 Claude Code 的项目记忆</td><td>控制在 200 行内；路径作用域规则放 .claude/rules/</td></tr>
+      <tr><td class="mono">&lt;方向&gt;/project-instructions.md</td><td>云端 Project 的 Instructions 原文</td><td>本地是真相源，云端是副本</td></tr>
+      <tr><td class="mono">&lt;方向&gt;/ROADMAP.md</td><td>阶段与当前状态</td><td><b>唯一</b>状态文件，别在别处重复写进度</td></tr>
+      <tr><td class="mono">&lt;方向&gt;/notes/00-index.md</td><td>topic → note → 源码定位 → 掌握度</td><td>新建 note 必须同步登记，否则等于没写</td></tr>
+      <tr><td class="mono">&lt;方向&gt;/inbox.md</td><td>待蒸馏队列</td><td>只减不增地推进；每条都带一个具体问题，不是标题堆</td></tr>
+      <tr><td class="mono">mac-ops/inventory.md</td><td>设备与卷的唯一事实源</td><td>回答涉及具体卷时先查它，不要假设设备号</td></tr>
+      <tr><td class="mono">STATUS.md</td><td>最近一次体检结果</td><td>机器生成，随时可覆盖，不要手写内容进去</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>四个红旗</h2></div>
+  <div class="grid">
+    <div class="card"><h3>把整个 repo 传进知识库</h3><p>vLLM 这种体量进去之后检索会退化成模糊语义搜索，回答开始编造文件名。源码留在 repos/，让 Claude Code 按需读。</p></div>
+    <div class="card"><h3>把 chat 当笔记本</h3><p>结论留在对话里 = 三个月后找不到。判据很简单：如果一个结论没有对应的 notes 文件，就当它不存在。</p></div>
+    <div class="card"><h3>inbox 只进不出</h3><p>归档巡检会持续往里加。如果连续两次体检 inbox 剩余数没下降，说明产能不够，该砍方向而不是继续攒。</p></div>
+    <div class="card"><h3>机器状态写进全局配置</h3><p>外置盘、卷名、网盘这类本机事实属于 <code>mac-ops/inventory.md</code>，不属于全局 CLAUDE.md，更不属于账号级 preferences——那里只放「你希望 Claude 怎么回答」。</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><h2>接下来这一周</h2></div>
+  <ol class="steps">
+    <li><div class="body"><b>把 ai-infra 的 Instructions 里那两行路径核对一遍</b><span>确认 <code>~/Codes/ClaudeContext/ai-infra/notes/</code> 和你实际的大小写一致（磁盘上是 <code>codes</code>，Mac 不区分大小写，但以后同步到别处会区分）。</span></div></li>
+    <li><div class="body"><b>做第一次蒸馏，只做一条</b><span>从 inbox 的 serving 组挑「Accelerate 与 vLLM 的显存管理」，把 KV cache 显存账算出来，写成第一篇 note。第一篇写完，这套目录才算活了。</span></div></li>
+    <li><div class="body"><b>把这一篇 note 和 00-index.md 上传到 AI-Infra 的 Context</b><span>然后在那个 project 里问一个你已经知道答案的问题，验证它确实读到了索引——这是唯一能确认「上传生效」的方法。</span></div></li>
+    <li><div class="body"><b>周一早上看体检报告</b><span>那时四个方向都会显示「0 篇 notes」，这是基线。往后每周看的是斜率，不是绝对值。</span></div></li>
+  </ol>
+</section>
+
+<footer>
+  <span>本地路径 <code>~/codes/ClaudeContext/handbook.html</code></span>
+  <span>四个 Project：AI-Infra · mac-ops · strength-training · humanities</span>
+  <span>生成于 2026-09-13</span>
+</footer>
+
+</div>
+</body>
+</html>
