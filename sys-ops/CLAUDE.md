@@ -1,3 +1,11 @@
+<!-- BEGIN notion-pointer -->
+> **状态只在 Notion 改，本地不要建同名文件。**
+> 规则真相源：[AI-Infra 工作台](https://app.notion.com/p/3e1854271cf781dfb804dd88945d6283)
+> 掌握度 / 能力阶梯 / inbox / kata 四个 database 都在该页下。
+> 本仓库只放笔记正文与 skill；`00-index.md`、`inbox.md`、`ROADMAP.md`、`STATUS.md` 已废弃，不要重建。
+> 写完 note 用 `/note` 更新掌握度与复查日期。
+<!-- END notion-pointer -->
+
 # sys-ops（原 mac-ops）：设备、存储、网络与 Linux 桌面运维
 
 ## 目标
