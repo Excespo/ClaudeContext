@@ -15,7 +15,7 @@
 - `repos/`、`sources/` 只读；实验代码写 `experiments/`。
 
 ## 跨方向的硬规则
-- 新增理解 = 一篇 `notes/<domain>/<topic>.md` + `00-index.md` 里一行登记 + inbox 对应条目划掉。三件事缺一件就算没做完。
-- 进度只写在该方向的 `ROADMAP.md`，不要在别处重复。
-- 四份 `project-instructions.md` 是云端 Project 的 Instructions 原文，本地是真相源；改了要同步到云端。
+- 新增理解 = 一篇 `notes/<domain>/<topic>.md`，写完跑 `/note` 更新 Notion 掌握度与复查日期。
+- 进度只写在 Notion（掌握度 / 模块进度等 database），不在仓库里建同名文件。
+- 四份 `project-instructions.md` 是云端 Project 的 Instructions 原文，本地是真相源；改了要同步到云端——由 yijie 或 Cowork 负责同步，Claude Code 改完本地文件后不要自己同步。
 - 机器与卷的事实归 `sys-ops/inventory.md`，不要散落到别的方向或全局 CLAUDE.md。
