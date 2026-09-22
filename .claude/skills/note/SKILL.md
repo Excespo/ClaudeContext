@@ -1,6 +1,6 @@
 ---
 name: note
-description: 把今天学到的东西写成一篇六段骨架的 note，并更新 Notion 掌握度与复查日期。用户说「写 note」「记一下今天学的」「/note」时使用。
+description: 把今天学到的东西写成一篇六段骨架的 note，并更新 Notion 掌握度与复查日期。用户说「写 note」「记一下今天学的」「/note」时使用。也用于 ai-infra study skill ①-④各阶段收尾，不限于 kata。
 ---
 
 # /note — 收尾写笔记
@@ -12,13 +12,15 @@ description: 把今天学到的东西写成一篇六段骨架的 note，并更�
 规则真相源：Notion「AI-Infra 工作台」https://app.notion.com/p/3e1854271cf781dfb804dd88945d6283
 - 掌握度 database `collection://3d544e1c-76c9-4745-aa76-7d19cc4a5e9f`
 - kata database `collection://05578c59-1627-4e7f-826f-d59d47f8ea00`
+- 模块进度 database（ai-infra 专属，仅 ai-infra 方向调用本 skill 时用）：`TODO: collection id`（Cowork 按
+  `ai-infra/redesign/notion-schema-v2.md` 建库后回填）
 
 没接 Notion MCP 就先跑 `claude mcp add --transport http notion https://mcp.notion.com/mcp`，再 `/mcp` 登录。
 
 ## 步骤
 
 1. `git pull --rebase --autostash`。
-2. 从 kata database 取今天（或用户指定日期）的条目：brief 正文、盲写命中度、「我的作答」。没有条目就问用户今天学的是什么 topic。
+2. 若本次来自④阶段（PR 综合测验），从 kata database 取今天（或用户指定日期）的条目：brief 正文、最高提示级、卡在哪、「我的作答」。若来自①②③阶段，直接问用户今天做了什么/学到了什么，不依赖 kata database 条目。都没有就问用户今天学的是什么 topic。
 3. 按六段骨架生成 note 草稿，写到 `<方向>/notes/<domain>/<topic>.md`：
 
    1. **结论** — 1–3 行，必须可证伪。
@@ -35,7 +37,9 @@ description: 把今天学到的东西写成一篇六段骨架的 note，并更�
    - Topic、方向、note路径（仓库内相对路径）、掌握度、一句话结论、我错在哪、最近更新=今天
    - 复查日期 = 今天 + 间隔：`1 读过` → 3 天，`2 能复述` → 7 天，`3 能改` → 21 天，`4 能写` → 60 天
    - 关联PR、上游commit（如果这篇来自 kata）
-6. 提醒用户在 kata 条目里填「盲写命中度」（这一项只能他自己判）。
+   - 若来自 ai-infra study skill，同步更新「模块进度」database 对应模块的阶段状态（`进行中`→`完成`）、
+     note 路径；若来自①阶段，还要写 minimal commit hash。
+6. 提醒用户确认「最高提示级」和「卡在哪」已经写对（若本次来自④阶段）——这两项只能他自己判断，不是分数。
 7. `git add -A && git commit -m "note: <topic>" && git push`。
 
 ## 约束
